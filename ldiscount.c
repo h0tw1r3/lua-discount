@@ -15,11 +15,20 @@ static const char *const discount_opts[] = {
   "tagtext",
   "noext",
   "cdata",
+  "nosuperscript",
+  "norelaxed",
   "notables",
+  "nostrikethrought",
   "toc",
   "compat",
   "autolink",
   "safelink",
+  "noheader",
+  "tabstop",
+  "nodivquote",
+  "noalphalist",
+  "nodlist",
+  "extrafootnote",
   "embed",
   NULL
 };
@@ -33,18 +42,27 @@ static const int discount_opts_codes[] = {
   MKD_TAGTEXT,
   MKD_NO_EXT,
   MKD_CDATA,
+  MKD_NOSUPERSCRIPT,
+  MKD_NORELAXED,
   MKD_NOTABLES,
+  MKD_NOSTRIKETHROUGH,
   MKD_TOC,
   MKD_1_COMPAT,
   MKD_AUTOLINK,
   MKD_SAFELINK,
+  MKD_NOHEADER,
+  MKD_TABSTOP,
+  MKD_NODIVQUOTE,
+  MKD_NOALPHALIST,
+  MKD_NODLIST,
+  MKD_EXTRA_FOOTNOTE,
   MKD_EMBED
 };
 
 static int ldiscount(lua_State *L) {
   size_t len;
   const char *str = luaL_checklstring(L, 1, &len);
-  int flags = 0;
+  mkd_flag_t flags = 0;
   int num_args = lua_gettop(L);
   MMIOT *doc;
   int i;
@@ -54,13 +72,19 @@ static int ldiscount(lua_State *L) {
     flags |= discount_opts_codes[opt_index];
   }
 
-  doc = mkd_string(str, len, MKD_TABSTOP|MKD_NOHEADER);
+  doc = mkd_string(str, len, flags);
   if (mkd_compile(doc, flags)) {
     char *result;
-    int result_size = mkd_document(doc, &result);
-    lua_pushlstring(L, result, result_size);
-    mkd_cleanup(doc);
-    return 1;
+    int result_size = 0;
+    if ( (result_size = mkd_document(doc, &result)) != EOF ) {
+        if ( flags & MKD_CDATA ) {
+            result_size = mkd_xml(result, result_size, &result);
+        }
+        lua_pushlstring(L, result, result_size);
+        mkd_cleanup(doc);
+        return 1;
+    }
+    return 0;
   } else {
     mkd_cleanup(doc);
     return luaL_error(L, "error converting document to markdown");

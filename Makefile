@@ -1,5 +1,5 @@
 LIB_NAME= lua-discount
-VERSION= 1.2.10.1
+VERSION= 1.4
 
 # change these to reflect your Lua installation
 LUA= /usr
@@ -14,19 +14,8 @@ WARN= -Wall
 INCS= -I$(LUAINC)
 DEFS = 
 
-DISCOUNT_OBJS = basename.o \
-  Csio.o \
-	css.o \
-	docheader.o \
-	dumptree.o \
-	emmatch.o \
-	generate.o \
-	markdown.o \
-	mkdio.o \
-	resource.o \
-	toc.o \
-	xml.o
-OBJS=  $(DISCOUNT_OBJS) ldiscount.o
+LIBS = -lmarkdown
+OBJS= ldiscount.o
 SOS= discount.so
 
 all: $(SOS)
@@ -39,5 +28,5 @@ clean:
 	rm -f $(OBJS) $(SOS) core core.* a.out
 
 tar: clean
-	git archive --format=tar --prefix=$(LIB_NAME)-$(VERSION)/ $(VERSION) | gzip > $(LIB_NAME)-$(VERSION).tar.gz
+	git archive --format=tar --prefix=$(LIB_NAME)-$(VERSION)/ $(VERSION) | bzip2 > $(LIB_NAME)-$(VERSION).tar.bz2
 

@@ -43,7 +43,7 @@ function t.test_cdata()
 end
 
 function t.test_toc()
-  local expected_out = '<h1 id="Level+1\">Level 1</h1>\n\n<h2 id="Level+2\">Level 2</h2>'
+  local expected_out = '<h1 id="Level.1\">Level 1</h1>\n\n<h2 id="Level.2\">Level 2</h2>'
   local input = "# Level 1\n\n## Level 2\n\n"
   assert_equal(expected_out, discount(input, "toc"))
 end
